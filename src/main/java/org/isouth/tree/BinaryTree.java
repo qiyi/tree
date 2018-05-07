@@ -1,6 +1,6 @@
 package org.isouth.tree;
 
-import java.util.List;
+import java.util.*;
 
 public class BinaryTree<T> implements Tree<T> {
     private static class Node<T> {
@@ -163,9 +163,41 @@ public class BinaryTree<T> implements Tree<T> {
         }
     }
 
+
     @Override
-    public List rangeSearch(int min, int max) {
-        return null;
+    public List<T> rangeSearch(int min, int max) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+        // 找到左边最小的节点, 然后中序遍历过去
+        Node<T> node = root;
+        while (node.left != null && node.left.key >= min) {
+            node = node.left;
+        }
+
+        Set<Node<T>> visited = new HashSet<>();
+        List<T> values = new ArrayList<>();
+        Stack<Node<T>> stack = new Stack<>();
+        stack.push(node);
+        while (!stack.isEmpty()) {
+            Node<T> n = stack.peek();
+            visited.add(n);
+            if (n.left != null && n.left.key >= min && !visited.contains(n.left)) {
+                stack.push(n.left);
+                continue;
+            }
+            values.add(n.value);
+            stack.pop();
+            if (n.right != null && n.right.key <= max) {
+                stack.push(n.right);
+                continue;
+            }
+            if (n.parent != null && n.parent.key <= max && !visited.contains(n.parent)) {
+                stack.push(n.parent);
+                continue;
+            }
+        }
+        return values;
     }
 
     @Override
